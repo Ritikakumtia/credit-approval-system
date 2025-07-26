@@ -1,0 +1,35 @@
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db 
+    environment:
+      POSTGRES_DB: credit_db
+      POSTGRES_USER: credit_user
+      POSTGRES_PASSWORD: credit_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"  
+  web:
+    build:
+      context: .
+    container_name: credit_web  # Optional: name the container
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+      - ./customer_data.xlsx:/code/customer_data.xlsx
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=credit_system.settings
+      - DB_NAME=credit_db
+      - DB_USER=credit_user
+      - DB_PASSWORD=credit_pass
+      - DB_HOST=db
+      - DB_PORT=5432
+
+volumes:
+  postgres_data:
